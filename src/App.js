@@ -1,10 +1,14 @@
 import React, { useEffect, useRef, useState } from 'react';
 import './App.css';
+import useMovement from './useMovement';
 
 export default function App() {
     const canvasRef = useRef();
-    const [x, setX] = useState(0);
-    const [y, setY] = useState(0);
+    const linkDownRef = useRef(null);
+    const linkUpRef = useRef(null);
+    const linkRightRef = useRef(null);
+    const linkLeftRef = useRef(null);
+    const { x, y, direction, move } = useMovement();
 
     useEffect(() => {
         const context = canvasRef.current.getContext('2d');
@@ -15,28 +19,16 @@ export default function App() {
     useEffect(() => {
         const context = canvasRef.current.getContext('2d');
         context.clearRect(0, 0, window.innerWidth, window.innerHeight);
-        context.fillRect(x, y, 100, 100);
+
+        let linkRef;
+
+        if (direction === 'down') linkRef = linkDownRef;
+        if (direction === 'up') linkRef = linkUpRef;
+        if (direction === 'left') linkRef = linkLeftRef;
+        if (direction === 'right') linkRef = linkRightRef;
+
+        context.drawImage(linkRef.current, x, y);
     }, [x, y]);
-
-    useEffect(() => {
-        window.addEventListener('keydown', handleKeyDown);
-
-        function handleKeyDown(e) {
-            if (e.key === 'ArrowUp') move('up');
-            if (e.key === 'ArrowLeft') move('left');
-            if (e.key === 'ArrowDown') move('down');
-            if (e.key === 'ArrowRight') move('right');
-        }
-
-        return () => window.removeEventListener('keydown', handleKeyDown);
-    }, []);
-
-    function move(direction) {
-        if (direction === 'up') setY(y => y - 20);
-        if (direction === 'left') setX(x => x - 20);
-        if (direction === 'down') setY(y => y + 20);
-        if (direction === 'right') setX(x => x + 20);
-    }
 
     return (
         <div className='app'>
@@ -50,10 +42,26 @@ export default function App() {
             </div>
 
             <div className='images'>
-                <img src='https://i.imgur.com/JYUB0m3.png' alt='Down' />
-                <img src='https://i.imgur.com/GEXD7bk.gif' alt='Right' />
-                <img src='https://i.imgur.com/XSA2Oom.gif' alt='Up' />
-                <img src='https://i.imgur.com/4LGAZ8t.gif' alt='Left' />
+                <img
+                    ref={linkDownRef}
+                    src='https://i.imgur.com/JYUB0m3.png'
+                    alt='Down'
+                />
+                <img
+                    ref={linkRightRef}
+                    src='https://i.imgur.com/GEXD7bk.gif'
+                    alt='Right'
+                />
+                <img
+                    ref={linkUpRef}
+                    src='https://i.imgur.com/XSA2Oom.gif'
+                    alt='Up'
+                />
+                <img
+                    ref={linkLeftRef}
+                    src='https://i.imgur.com/4LGAZ8t.gif'
+                    alt='Left'
+                />
             </div>
         </div>
     );
